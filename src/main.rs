@@ -1,9 +1,12 @@
-struct Math;
+use std::process::exit;
 
-impl Math {
-    pub const PI: f64 = 3.14159;
-}
+use play_rs::primal::Number;
 
 fn main() {
-    dbg!(Math::PI);
+    let six = Number::from_json_file("data/primal_six.json").unwrap_or_else(|err| {
+        eprintln!("error: {err}");
+        exit(1);
+    });
+
+    dbg!(six);
 }

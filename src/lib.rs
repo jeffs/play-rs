@@ -1,3 +1,4 @@
-mod fizz_buzz;
-
-pub use fizz_buzz::fizz_buzz;
+pub mod fizz_buzz;
+pub mod primal;
+pub mod primes;
+pub mod simple_error;

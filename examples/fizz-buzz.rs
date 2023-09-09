@@ -1,4 +1,4 @@
-use rs::fizz_buzz;
+use play_rs::fizz_buzz::fizz_buzz;
 
 const DEFAULT_N: usize = 100;
 
