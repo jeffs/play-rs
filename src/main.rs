@@ -1,6 +1,6 @@
 use std::env;
 
-use play_rs::primes::{primes, Sieve, UNDER_100000};
+use play_rs::primes::{self, primes, Cache as PrimeCache};
 
 #[derive(Clone, Copy, Default)]
 enum LogLevel {
@@ -11,20 +11,20 @@ enum LogLevel {
 
 struct Args {
     log_level: LogLevel,
-    use_sieve: bool,
+    use_cache: bool,
     targets: Vec<u32>,
 }
 
 fn parse_args() -> Args {
     let default_target = 2147483647;
     let mut log_level = LogLevel::default();
-    let mut use_sieve = false;
+    let mut use_cache = false;
     let mut targets: Vec<u32> = Vec::new();
     for arg in env::args().skip(1) {
         if arg == "--log" {
             log_level = LogLevel::Some
-        } else if arg == "--sieve" {
-            use_sieve = true;
+        } else if arg == "--cache" {
+            use_cache = true;
         } else {
             let message = format!("{arg}: expected natural number");
             targets.push(arg.parse().expect(&message));
@@ -35,7 +35,7 @@ fn parse_args() -> Args {
     }
     Args {
         log_level,
-        use_sieve,
+        use_cache,
         targets,
     }
 }
@@ -59,12 +59,13 @@ fn search(primes: impl Iterator<Item = u32>, target: u32, log_level: LogLevel) -
 fn main() {
     let Args {
         log_level,
-        use_sieve,
+        use_cache,
         targets,
     } = parse_args();
     for target in targets {
-        let option = if use_sieve {
-            search(Sieve::new(&UNDER_100000).primes(), target, log_level)
+        let option = if use_cache {
+            let cache = PrimeCache::new(&primes::UNDER_100000);
+            search(cache.primes(), target, log_level)
         } else {
             search(primes(), target, log_level)
         };

@@ -1,5 +1,3 @@
-//! TODO: Rename Sieve.  It's not a Sieve of Eratosthenes.
-
 use std::{cell::RefCell, mem};
 
 use super::UNDER_100000;
@@ -14,12 +12,12 @@ fn is_prime_known(n: u32, known: &[u32]) -> bool {
         .any(|p| n % p == 0)
 }
 
-pub struct SievePrimes<'a> {
-    sieve: &'a Sieve,
+pub struct CachePrimes<'a> {
+    cache: &'a Cache,
     next: u32,
 }
 
-impl<'a> Iterator for SievePrimes<'a> {
+impl<'a> Iterator for CachePrimes<'a> {
     type Item = u32;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -27,7 +25,7 @@ impl<'a> Iterator for SievePrimes<'a> {
             3
         } else {
             let mut next = self.next;
-            while !self.sieve.is_prime(next) {
+            while !self.cache.is_prime(next) {
                 next += 2;
             }
             next
@@ -37,11 +35,11 @@ impl<'a> Iterator for SievePrimes<'a> {
 }
 
 #[derive(Default)]
-pub struct Sieve {
+pub struct Cache {
     known: RefCell<Vec<u32>>,
 }
 
-impl Sieve {
+impl Cache {
     fn extend_past(&self, n: u32) {
         let mut known = self.known.borrow_mut();
         if known.is_empty() {
@@ -63,15 +61,15 @@ impl Sieve {
         self.known.borrow().binary_search(&n).is_ok()
     }
 
-    pub fn new(known: &[u32]) -> Sieve {
-        Sieve {
+    pub fn new(known: &[u32]) -> Cache {
+        Cache {
             known: RefCell::new(known.to_vec()),
         }
     }
 
-    pub fn primes(&self) -> SievePrimes {
-        SievePrimes {
-            sieve: self,
+    pub fn primes(&self) -> CachePrimes {
+        CachePrimes {
+            cache: self,
             next: 2,
         }
     }
@@ -84,10 +82,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sieve_is_prime() {
-        let sieve = Sieve::new(&UNDER_1000);
+    fn test_cache_is_prime() {
+        let cache = Cache::new(&UNDER_1000);
         for n in 0..100_000 {
-            assert_eq!(sieve.is_prime(n), UNDER_100000.contains(&n));
+            assert_eq!(cache.is_prime(n), UNDER_100000.contains(&n));
         }
     }
 }
