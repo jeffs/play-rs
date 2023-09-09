@@ -43,10 +43,9 @@ pub fn primes() -> Primes {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::primes::UNDER_1000;
     use std::collections::HashSet;
-
-    use super::*;
 
     #[test]
     fn test_is_prime() {

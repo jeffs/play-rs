@@ -1,6 +1,6 @@
 //! TODO: Rename Sieve.  It's not a Sieve of Eratosthenes.
 
-use std::cell::RefCell;
+use std::{cell::RefCell, mem};
 
 use super::UNDER_100000;
 
@@ -12,6 +12,28 @@ fn is_prime_known(n: u32, known: &[u32]) -> bool {
         .into_iter()
         .take_while(|&&p| p < n)
         .any(|p| n % p == 0)
+}
+
+pub struct SievePrimes<'a> {
+    sieve: &'a Sieve,
+    next: u32,
+}
+
+impl<'a> Iterator for SievePrimes<'a> {
+    type Item = u32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = if self.next == 2 {
+            3
+        } else {
+            let mut next = self.next;
+            while !self.sieve.is_prime(next) {
+                next += 2;
+            }
+            next
+        };
+        Some(mem::replace(&mut self.next, next))
+    }
 }
 
 #[derive(Default)]
@@ -27,7 +49,7 @@ impl Sieve {
         }
         let last = known[known.len() - 1];
         if last < n {
-            let limit = n + 100_000; // Arbitrary.
+            let limit = n * 2; // Arbitrary.
             for candidate in (last..limit).step_by(2) {
                 if is_prime_known(candidate, &known) {
                     known.push(candidate);
@@ -44,6 +66,13 @@ impl Sieve {
     pub fn new(known: &[u32]) -> Sieve {
         Sieve {
             known: RefCell::new(known.to_vec()),
+        }
+    }
+
+    pub fn primes(&self) -> SievePrimes {
+        SievePrimes {
+            sieve: self,
+            next: 2,
         }
     }
 }
