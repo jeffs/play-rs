@@ -14,7 +14,7 @@ pub fn is_prime(n: u32) -> bool {
     !(n < 2 || (n % 2 == 0 && n != 2) || (3..n).step_by(2).any(|d| n % d == 0))
 }
 
-struct Primes(u32);
+pub struct Primes(u32);
 
 impl Default for Primes {
     fn default() -> Self {
@@ -39,6 +39,10 @@ impl Iterator for Primes {
     }
 }
 
+pub fn primes() -> Primes {
+    Primes::default()
+}
+
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
@@ -56,7 +60,7 @@ mod tests {
     #[test]
     fn test_primes() {
         let want = UNDER_1000;
-        let got: Vec<_> = Primes::default().take(want.len()).collect();
+        let got: Vec<_> = primes().take(want.len()).collect();
         assert_eq!(got, want);
     }
 }

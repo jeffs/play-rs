@@ -1,12 +1,18 @@
-use std::process::exit;
-
-use play_rs::primal::Number;
+use play_rs::primes::primes;
 
 fn main() {
-    let six = Number::from_json_file("data/primal_six.json").unwrap_or_else(|err| {
-        eprintln!("error: {err}");
-        exit(1);
-    });
-
-    dbg!(six);
+    let target = 2147483647;
+    match primes()
+        .take_while(|&n| n <= target)
+        .enumerate()
+        .inspect(|(i, n)| {
+            if i % 1000 == 0 {
+                eprintln!("{i:8} {n}");
+            }
+        })
+        .last()
+    {
+        Some((index, value)) if value == target => println!("{target} found at index {index}"),
+        _ => println!("{target} is not prime"),
+    }
 }
