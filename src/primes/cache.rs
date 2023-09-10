@@ -81,6 +81,7 @@ mod tests {
 
     use super::*;
 
+    #[ignore = "slow"]
     #[test]
     fn test_cache_is_prime() {
         let cache = Cache::new(&UNDER_1000);

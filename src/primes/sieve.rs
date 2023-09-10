@@ -127,7 +127,11 @@ mod tests {
         let mut sieve = Sieve::default();
         let known: HashSet<_> = UNDER_100000.into_iter().collect();
         for n in 0..100_000 {
-            assert_eq!(sieve.is_prime(n), known.contains(&n));
+            assert_eq!(
+                sieve.is_prime(n),
+                known.contains(&n),
+                "whether {n} is prime"
+            );
         }
     }
 
