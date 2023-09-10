@@ -24,12 +24,12 @@ const WORD_BITS: usize = Word::BITS as usize;
 //    9     * 2 + 1 =   19        1
 const FIRST_WORD: Word = 0x816d129a64b4cb6e;
 
-pub struct SievePrimes {
-    sieve: Sieve,
+pub struct SievePrimes<'a> {
+    sieve: &'a mut Sieve,
     known: u32,
 }
 
-impl Iterator for SievePrimes {
+impl<'a> Iterator for SievePrimes<'a> {
     type Item = u32;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -106,7 +106,7 @@ impl Sieve {
         self.is_known_prime(value)
     }
 
-    pub fn into_primes(self) -> SievePrimes {
+    pub fn primes(&mut self) -> SievePrimes {
         SievePrimes {
             sieve: self,
             known: 0,
@@ -138,8 +138,8 @@ mod tests {
     #[test]
     fn test_sieve_primes() {
         let want = UNDER_1000;
-        let sieve = Sieve::default();
-        let got: Vec<_> = sieve.into_primes().take(want.len()).collect();
+        let mut sieve = Sieve::default();
+        let got: Vec<_> = sieve.primes().take(want.len()).collect();
         assert_eq!(got, want);
     }
 }

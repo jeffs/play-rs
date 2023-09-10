@@ -21,6 +21,6 @@ fn main() {
     if count <= UNDER_100000.len() {
         print_n(UNDER_100000, count);
     } else {
-        print_n(Sieve::default().into_primes(), count);
+        print_n(Sieve::default().primes(), count);
     }
 }

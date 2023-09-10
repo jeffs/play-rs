@@ -83,7 +83,7 @@ fn main() {
                 let cache = PrimeCache::new(&primes::UNDER_100000);
                 search(cache.primes(), target, log_level)
             }
-            Algorithm::Sieve => search(Sieve::default().into_primes(), target, log_level),
+            Algorithm::Sieve => search(Sieve::default().primes(), target, log_level),
         };
         if let Some(index) = found {
             println!("{target} found at index {index}");
