@@ -51,7 +51,7 @@ pub struct Sieve {
 }
 
 impl Sieve {
-    fn mark_nonprime_value(&mut self, value: u32) {
+    fn mark_nonprime(&mut self, value: u32) {
         if value % 2 == 0 {
             return; // We don't store bits for even numbers, anyway.
         }
@@ -79,16 +79,16 @@ impl Sieve {
             return;
         }
         let num_old_values = self.num_values() as u32;
-        let new_word_count = self.words.len() + 1_000_000; // Arbitrary.
-        self.words.resize(new_word_count, !0); // Append a bunch of 1s.
+        let new_len = self.words.len() + 1_000_000; // Arbitrary.
+        self.words.resize(new_len, !0); // Append a bunch of 1s.
         let num_new_values = self.num_values() as u32;
         for value in (3..num_old_values).step_by(2) {
             if !self.is_known_prime(value) {
                 continue; // Skip non-prime.
             }
             let offset = value - num_old_values % value;
-            for new_index in ((num_old_values + offset)..num_new_values).step_by(value as usize) {
-                self.mark_nonprime_value(new_index); // New index is divisible by value.
+            for composite in ((num_old_values + offset)..num_new_values).step_by(value as usize) {
+                self.mark_nonprime(composite); // Composite is divisible by value.
             }
         }
     }
