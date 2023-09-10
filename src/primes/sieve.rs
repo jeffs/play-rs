@@ -112,6 +112,37 @@ impl Sieve {
             known: 0,
         }
     }
+
+    pub fn factorize(&mut self, mut value: u32) -> Vec<(u32, u32)> {
+        let mut factors = Vec::new();
+        for prime in self.primes() {
+            // If this prime is greater than the square root of the value, then
+            // the prime won't divide the value, because we already factored out
+            // whatever the quotient would be (since it's smaller than the
+            // prime).  The remaining value (after all the divisions we've
+            // already applied to it) is either 1 (because we've divided it by
+            // all its factors), or is prime itself (which is the only way it
+            // could still have a factor greater than its square root).
+            if prime * prime > value {
+                if value > 1 {
+                    factors.push((value, 1));
+                }
+                return factors;
+            }
+
+            // Count how many times this prime divides the value, reducing the
+            // value accordingly.
+            let mut power = 0;
+            while value % prime == 0 {
+                power += 1;
+                value /= prime;
+            }
+            if power > 0 {
+                factors.push((prime, power));
+            }
+        }
+        unreachable!()
+    }
 }
 
 #[cfg(test)]
@@ -141,5 +172,25 @@ mod tests {
         let mut sieve = Sieve::default();
         let got: Vec<_> = sieve.primes().take(want.len()).collect();
         assert_eq!(got, want);
+    }
+
+    #[test]
+    fn test_sieve_factorize() {
+        let mut sieve = Sieve::default();
+        let table: &[(u32, &[(u32, u32)])] = &[
+            (0, &[]),
+            (1, &[]),
+            (2, &[(2, 1)]),
+            (3, &[(3, 1)]),
+            (4, &[(2, 2)]),
+            (5, &[(5, 1)]),
+            (6, &[(2, 1), (3, 1)]),
+            (7, &[(7, 1)]),
+            (8, &[(2, 3)]),
+            (18, &[(2, 1), (3, 2)]),
+        ];
+        for &(arg, want) in table {
+            assert_eq!(sieve.factorize(arg), want, "factorization of {arg}");
+        }
     }
 }
