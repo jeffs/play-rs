@@ -45,6 +45,56 @@ impl<'a> Iterator for SievePrimes<'a> {
     }
 }
 
+pub struct Factors<'a> {
+    primes: SievePrimes<'a>,
+    value: u32,
+}
+
+impl<'a> Iterator for Factors<'a> {
+    type Item = (u32, u32); // (factor, exponent)
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut value = self.value;
+
+        // The remaining value has no prime factors.
+        if value < 2 {
+            return None;
+        }
+
+        while let Some(prime) = self.primes.next() {
+            // If the next prime is greater than the square root of the value,
+            // then it won't divide the value, because we already factored out
+            // whatever the quotient would be (since it's smaller than the
+            // prime). The remaining value (after all the divisions we've
+            // already applied to it) is either 1 (because we've divided it by
+            // all its factors), in which case we already returned None; or is
+            // prime itself, which is the only way it could still have a factor
+            // greater than its square root.
+            if prime * prime > value {
+                self.value = 1;
+                return Some((value, 1));
+            }
+
+            // Skip any prime that isn't a factor of our value.
+            if value % prime != 0 {
+                continue;
+            }
+
+            // Reduce our value, counting how many times this prime divides it.
+            let mut power = 1;
+            while {
+                value /= prime;
+                value % prime == 0
+            } {
+                power += 1;
+            }
+            self.value = value;
+            return Some((prime, power));
+        }
+        unreachable!()
+    }
+}
+
 #[derive(Default)]
 pub struct Sieve {
     words: Vec<Word>,
@@ -113,35 +163,11 @@ impl Sieve {
         }
     }
 
-    pub fn factorize(&mut self, mut value: u32) -> Vec<(u32, u32)> {
-        let mut factors = Vec::new();
-        for prime in self.primes() {
-            // If this prime is greater than the square root of the value, then
-            // the prime won't divide the value, because we already factored out
-            // whatever the quotient would be (since it's smaller than the
-            // prime).  The remaining value (after all the divisions we've
-            // already applied to it) is either 1 (because we've divided it by
-            // all its factors), or is prime itself (which is the only way it
-            // could still have a factor greater than its square root).
-            if prime * prime > value {
-                if value > 1 {
-                    factors.push((value, 1));
-                }
-                return factors;
-            }
-
-            // Count how many times this prime divides the value, reducing the
-            // value accordingly.
-            let mut power = 0;
-            while value % prime == 0 {
-                power += 1;
-                value /= prime;
-            }
-            if power > 0 {
-                factors.push((prime, power));
-            }
+    pub fn factors(&mut self, value: u32) -> Factors {
+        Factors {
+            primes: self.primes(),
+            value,
         }
-        unreachable!()
     }
 }
 
@@ -175,7 +201,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sieve_factorize() {
+    fn test_sieve_factors() {
         let mut sieve = Sieve::default();
         let table: &[(u32, &[(u32, u32)])] = &[
             (0, &[]),
@@ -190,7 +216,8 @@ mod tests {
             (18, &[(2, 1), (3, 2)]),
         ];
         for &(arg, want) in table {
-            assert_eq!(sieve.factorize(arg), want, "factorization of {arg}");
+            let got: Vec<_> = sieve.factors(arg).collect();
+            assert_eq!(got, want, "factorization of {arg}");
         }
     }
 }
