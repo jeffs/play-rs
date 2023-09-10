@@ -78,17 +78,23 @@ impl Sieve {
             self.words.push(FIRST_WORD);
             return;
         }
+        // Append a bunch of ones, then iterate through known primes and mark
+        // all their multiples composite by clearing bits.  We always have at
+        // least enough known primes to fill out twice the size of our table,
+        // but we cap the number of new bits added at any time to avoid
+        // overflowing our value type (since we use indexes as values).  The
+        // actual minimum is arbitrary.
         let num_old_values = self.num_values() as u32;
-        let new_len = self.words.len() + 1_000_000; // Arbitrary.
-        self.words.resize(new_len, !0); // Append a bunch of 1s.
+        let new_len = 1_000_000.min(self.words.len() * 2);
+        self.words.resize(new_len, !0);
         let num_new_values = self.num_values() as u32;
         for value in (3..num_old_values).step_by(2) {
             if !self.is_known_prime(value) {
                 continue; // Skip non-prime.
             }
-            let offset = value - num_old_values % value;
-            for composite in ((num_old_values + offset)..num_new_values).step_by(value as usize) {
-                self.mark_nonprime(composite); // Composite is divisible by value.
+            let start = num_old_values - num_old_values % value + value;
+            for new_index in (start..num_new_values).step_by(value as usize) {
+                self.mark_nonprime(new_index); // New index is divisible by value.
             }
         }
     }
