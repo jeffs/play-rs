@@ -50,7 +50,6 @@ pub struct Sieve {
     words: Vec<Word>,
 }
 
-// TODO: Store only odd bits.
 impl Sieve {
     fn mark_nonprime_value(&mut self, value: u32) {
         if value % 2 == 0 {
@@ -60,7 +59,7 @@ impl Sieve {
         self.words[index / WORD_BITS] &= !(1 << (index % WORD_BITS));
     }
 
-    fn check_is_prime_value(&self, value: u32) -> bool {
+    fn is_known_prime(&self, value: u32) -> bool {
         // We get twice as many bits per word by skipping even-indexed bits,
         // since no even numbers past 2 are prime.  We special-case 2.
         if value % 2 == 0 {
@@ -74,12 +73,6 @@ impl Sieve {
         (self.words.len() * WORD_BITS * 2) as u32
     }
 
-    // fn set_bit(&mut self, index: usize) {
-    //     debug_assert!(index % 2 != 0);
-    //     let index = index / 2;
-    //     self.words[index / WORD_BITS] |= 1 << (index % WORD_BITS);
-    // }
-
     pub fn grow(&mut self) {
         if self.words.is_empty() {
             self.words.push(FIRST_WORD);
@@ -90,7 +83,7 @@ impl Sieve {
         self.words.resize(new_word_count, !0); // Append a bunch of 1s.
         let num_new_values = self.num_values() as u32;
         for value in (3..num_old_values).step_by(2) {
-            if !self.check_is_prime_value(value) {
+            if !self.is_known_prime(value) {
                 continue; // Skip non-prime.
             }
             let offset = value - num_old_values % value;
@@ -104,7 +97,7 @@ impl Sieve {
         while self.num_values() <= value {
             self.grow();
         }
-        self.check_is_prime_value(value)
+        self.is_known_prime(value)
     }
 
     pub fn into_primes(self) -> SievePrimes {

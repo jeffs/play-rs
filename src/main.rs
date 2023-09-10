@@ -9,9 +9,11 @@ enum LogLevel {
     None,
 }
 
+#[derive(Default)]
 enum Algorithm {
     Stateless,
     Cache,
+    #[default]
     Sieve,
 }
 
@@ -24,11 +26,13 @@ struct Args {
 fn parse_args() -> Args {
     let default_target = 2147483647;
     let mut log_level = LogLevel::default();
-    let mut algorithm = Algorithm::Stateless;
+    let mut algorithm = Algorithm::default();
     let mut targets: Vec<u32> = Vec::new();
     for arg in env::args().skip(1) {
         if arg == "--log" {
             log_level = LogLevel::Some
+        } else if arg == "--stateless" {
+            algorithm = Algorithm::Stateless;
         } else if arg == "--cache" {
             algorithm = Algorithm::Cache;
         } else if arg == "--sieve" {
@@ -71,7 +75,7 @@ fn main() {
         targets,
     } = parse_args();
     for target in targets {
-        let option = match algorithm {
+        let found = match algorithm {
             Algorithm::Stateless => search(primes(), target, log_level),
             Algorithm::Cache => {
                 let cache = PrimeCache::new(&primes::UNDER_100000);
@@ -79,7 +83,7 @@ fn main() {
             }
             Algorithm::Sieve => search(Sieve::default().into_primes(), target, log_level),
         };
-        if let Some(index) = option {
+        if let Some(index) = found {
             println!("{target} found at index {index}");
         } else {
             println!("{target} is not prime");
