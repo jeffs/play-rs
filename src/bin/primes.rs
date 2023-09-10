@@ -10,7 +10,7 @@ fn print_n(items: impl IntoIterator<Item = u32>, n: usize) {
 }
 
 fn main() {
-    let count = std::env::args().skip(1).next().unwrap_or_else(|| {
+    let count = std::env::args().nth(1).unwrap_or_else(|| {
         eprintln!("error: expected count");
         exit(2);
     });
@@ -21,6 +21,6 @@ fn main() {
     if count <= UNDER_100000.len() {
         print_n(UNDER_100000, count);
     } else {
-        print_n(Sieve::default().into_primes(), count);
+        print_n(Sieve::default().primes(), count);
     }
 }

@@ -7,7 +7,7 @@ use super::UNDER_100000;
 /// Prerequisite: The slice of known primes is sorted.
 fn is_prime_known(n: u32, known: &[u32]) -> bool {
     !known
-        .into_iter()
+        .iter()
         .take_while(|&&p| p < n)
         .any(|p| n % p == 0)
 }
