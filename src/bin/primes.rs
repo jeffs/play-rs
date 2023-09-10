@@ -10,7 +10,7 @@ fn print_n(items: impl IntoIterator<Item = u32>, n: usize) {
 }
 
 fn main() {
-    let count = std::env::args().skip(1).next().unwrap_or_else(|| {
+    let count = std::env::args().nth(1).unwrap_or_else(|| {
         eprintln!("error: expected count");
         exit(2);
     });

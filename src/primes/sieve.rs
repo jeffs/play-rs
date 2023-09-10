@@ -61,7 +61,7 @@ impl<'a> Iterator for Factors<'a> {
             return None;
         }
 
-        while let Some(prime) = self.primes.next() {
+        for prime in self.primes.by_ref() {
             // If the next prime is greater than the square root of the value,
             // then it won't divide the value, because we already factored out
             // whatever the quotient would be (since it's smaller than the
@@ -134,10 +134,10 @@ impl Sieve {
         // but we cap the number of new bits added at any time to avoid
         // overflowing our value type (since we use indexes as values).  The
         // actual minimum is arbitrary.
-        let num_old_values = self.num_values() as u32;
+        let num_old_values = self.num_values();
         let new_len = 1_000_000.min(self.words.len() * 2);
         self.words.resize(new_len, !0);
-        let num_new_values = self.num_values() as u32;
+        let num_new_values = self.num_values();
         for value in (3..num_old_values).step_by(2) {
             if !self.is_known_prime(value) {
                 continue; // Skip non-prime.
