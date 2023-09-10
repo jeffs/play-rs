@@ -80,13 +80,14 @@ impl Sieve {
     //     self.words[index / WORD_BITS] |= 1 << (index % WORD_BITS);
     // }
 
-    pub fn double(&mut self) {
+    pub fn grow(&mut self) {
         if self.words.is_empty() {
             self.words.push(FIRST_WORD);
             return;
         }
         let num_old_values = self.num_values() as u32;
-        self.words.resize(self.words.len() * 2, !0); // Append a bunch of 1s.
+        let new_word_count = self.words.len() + 1_000_000; // Arbitrary.
+        self.words.resize(new_word_count, !0); // Append a bunch of 1s.
         let num_new_values = self.num_values() as u32;
         for value in (3..num_old_values).step_by(2) {
             if !self.check_is_prime_value(value) {
@@ -101,7 +102,7 @@ impl Sieve {
 
     pub fn is_prime(&mut self, value: u32) -> bool {
         while self.num_values() <= value {
-            self.double();
+            self.grow();
         }
         self.check_is_prime_value(value)
     }
