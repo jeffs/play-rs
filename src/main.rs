@@ -53,18 +53,18 @@ fn parse_args() -> Args {
 }
 
 fn search(primes: impl Iterator<Item = u32>, target: u32, log_level: LogLevel) -> Option<usize> {
-    primes
-        .take_while(|&n| n <= target)
-        .enumerate()
-        .inspect(|(i, n)| {
-            if let LogLevel::Some = log_level {
+    let iter = primes.take_while(|&n| n <= target).enumerate();
+    let last = match log_level {
+        LogLevel::Some => iter
+            .inspect(|(i, n)| {
                 if i % 1000 == 0 {
                     eprintln!("{i:8} {n}");
                 }
-            }
-        })
-        .last()
-        .filter(|&(_, value)| value == target)
+            })
+            .last(),
+        LogLevel::None => iter.last(),
+    };
+    last.filter(|&(_, value)| value == target)
         .map(|(index, _)| index)
 }
 
