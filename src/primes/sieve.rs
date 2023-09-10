@@ -1,10 +1,6 @@
-use super::UNDER_100000;
-
 type Word = u64;
 
 const WORD_BITS: usize = Word::BITS as usize;
-
-const USE_UNDER_100000: bool = false;
 
 // The little-endian index of each 1 bit, times two and plus one, is prime.  For
 // example, the first ten bits are:
@@ -63,12 +59,6 @@ impl Sieve {
         self.words[index / WORD_BITS] &= !(1 << (index % WORD_BITS));
     }
 
-    fn mark_prime_value(&mut self, value: u32) {
-        debug_assert!(value % 2 != 0);
-        let index = (value / 2) as usize;
-        self.words[index / WORD_BITS] |= 1 << (index % WORD_BITS);
-    }
-
     fn is_known_prime(&self, value: u32) -> bool {
         // We get twice as many bits per word by skipping even-indexed bits,
         // since no even numbers past 2 are prime.  We special-case 2.
@@ -85,17 +75,7 @@ impl Sieve {
 
     pub fn grow(&mut self) {
         if self.words.is_empty() {
-            if USE_UNDER_100000 {
-                // We can completely fill 781 words using primes under 100000,
-                // up to and including the prime at index 9589 (99961).  The
-                // remaining few primes would spill into the next word.
-                self.words.resize(781, 0);
-                for prime in UNDER_100000.into_iter().take(9589) {
-                    self.mark_prime_value(prime);
-                }
-            } else {
-                self.words.push(FIRST_WORD);
-            }
+            self.words.push(FIRST_WORD);
             return;
         }
         let num_old_values = self.num_values() as u32;
