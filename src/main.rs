@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, process::exit};
 
 use play_rs::primes::{self, primes, Cache as PrimeCache, Sieve};
 
@@ -37,9 +37,11 @@ fn parse_args() -> Args {
             algorithm = Algorithm::Cache;
         } else if arg == "--sieve" {
             algorithm = Algorithm::Sieve;
+        } else if let Ok(target) = arg.parse::<u32>() {
+            targets.push(target);
         } else {
-            let message = format!("{arg}: expected natural number");
-            targets.push(arg.parse().expect(&message));
+            eprintln!("error: {arg}: expected natural number");
+            exit(2);
         }
     }
     if targets.is_empty() {
