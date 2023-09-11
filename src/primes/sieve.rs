@@ -133,7 +133,7 @@ impl Sieve {
         // least enough known primes to fill out twice the size of our table,
         // but we cap the number of new bits added at any time to avoid
         // overflowing our value type (since we use indexes as values).  The
-        // actual minimum is arbitrary.
+        // cap value is arbitrary.
         let num_old_values = self.num_values();
         let new_len = 1_000_000.min(self.words.len() * 2);
         self.words.resize(new_len, !0);
