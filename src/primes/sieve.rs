@@ -105,7 +105,7 @@ impl Sieve {
         if value % 2 == 0 {
             return; // We don't store bits for even numbers, anyway.
         }
-        let index = (value / 2) as usize;
+        let index = value as usize / 2;
         self.words[index / WORD_BITS] &= !(1 << (index % WORD_BITS));
     }
 
