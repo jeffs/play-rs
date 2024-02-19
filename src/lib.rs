@@ -1,3 +1,4 @@
+pub mod delay;
 pub mod fizz_buzz;
 pub mod primal;
 pub mod primes;
